@@ -1,40 +1,44 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function Navbar() {
+  const pathname = usePathname()
+  const isAuth = pathname === "/auth"
+  const { user, signOut, loading } = useAuth()
+
+  if (isAuth) {
+    return (
+      <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+        <nav className="max-w-[1200px] mx-auto px-6 h-16 flex items-center">
+          <Link href="/" className="flex items-center gap-2.5 no-underline">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="10" fill="white" fillOpacity="0.08" />
+              <rect x="0.5" y="0.5" width="39" height="39" rx="9.5" stroke="white" strokeOpacity="0.15" />
+              <path
+                d="M12 30V10L28 30V10"
+                stroke="white"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="text-base font-semibold text-white tracking-[0.03em]">
+              Nailart AI
+            </span>
+          </Link>
+        </nav>
+      </header>
+    )
+  }
+
   return (
-    <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        backgroundColor: "transparent",
-      }}
-    >
-      <nav
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0 1.5rem",
-          height: "64px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+      <nav className="max-w-[1200px] mx-auto px-6 h-16 grid grid-cols-3 items-center">
         {/* Left — Logo */}
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-          }}
-        >
+        <Link href="/" className="flex items-center gap-2.5 no-underline">
           <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="40" height="40" rx="10" fill="white" fillOpacity="0.08" />
             <rect x="0.5" y="0.5" width="39" height="39" rx="9.5" stroke="white" strokeOpacity="0.15" />
@@ -46,45 +50,18 @@ export function Navbar() {
               strokeLinejoin="round"
             />
           </svg>
-          <span
-            style={{
-              fontSize: "1rem",
-              fontWeight: 600,
-              color: "white",
-              letterSpacing: "0.03em",
-              fontFamily: "'SUITE Variable', system-ui, sans-serif",
-            }}
-          >
+          <span className="text-base font-semibold text-white tracking-[0.03em]">
             Nailart AI
           </span>
         </Link>
 
         {/* Center — Nav links */}
-        <ul
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "2.2rem",
-            listStyle: "none",
-            margin: 0,
-            padding: 0,
-          }}
-        >
+        <ul className="flex items-center justify-center gap-[2.2rem] list-none m-0 p-0">
           {["Features", "Pricing", "Contact"].map((item) => (
             <li key={item}>
               <Link
                 href={`#${item.toLowerCase()}`}
-                style={{
-                  fontSize: "0.9rem",
-                  fontWeight: 500,
-                  color: "rgba(255,255,255,0.6)",
-                  textDecoration: "none",
-                  letterSpacing: "0.01em",
-                  fontFamily: "'SUITE Variable', system-ui, sans-serif",
-                  transition: "color 0.15s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,1)")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
+                className="text-[0.9rem] font-medium text-white/60 no-underline tracking-[0.01em] transition-colors duration-150 hover:text-white"
               >
                 {item}
               </Link>
@@ -93,27 +70,23 @@ export function Navbar() {
         </ul>
 
         {/* Right — CTA */}
-        <Link
-          href="#"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            padding: "0.55rem 1.35rem",
-            background: "white",
-            color: "black",
-            borderRadius: "8px",
-            fontSize: "0.875rem",
-            fontWeight: 700,
-            letterSpacing: "0.01em",
-            textDecoration: "none",
-            fontFamily: "'SUITE Variable', system-ui, sans-serif",
-            transition: "opacity 0.15s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-        >
-          Get Started
-        </Link>
+        <div className={`flex justify-end ${loading ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+          {user ? (
+            <button
+              onClick={signOut}
+              className="inline-flex items-center py-[0.55rem] px-[1.35rem] bg-white/10 text-white border border-white/20 rounded-lg text-sm font-bold tracking-[0.01em] transition-opacity duration-150 hover:opacity-85 cursor-pointer"
+            >
+              Log out
+            </button>
+          ) : (
+            <Link
+              href="/auth"
+              className="inline-flex items-center py-[0.55rem] px-[1.35rem] bg-white text-black rounded-lg text-sm font-bold tracking-[0.01em] no-underline transition-opacity duration-150 hover:opacity-85"
+            >
+              Get Started
+            </Link>
+          )}
+        </div>
       </nav>
     </header>
   )
