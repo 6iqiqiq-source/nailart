@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Session, User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client"
 
@@ -20,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   const supabase = createClient()
+  const router = useRouter()
 
   useEffect(() => {
     // 초기 세션 확인
@@ -52,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut()
+    router.push("/")
   }
 
   return (

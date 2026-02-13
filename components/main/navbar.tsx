@@ -7,7 +7,10 @@ import { useAuth } from "@/contexts/AuthContext"
 export function Navbar() {
   const pathname = usePathname()
   const isAuth = pathname === "/auth"
+  const isDashboard = pathname === "/dashboard"
   const { user, signOut, loading } = useAuth()
+
+  if (isDashboard) return null
 
   if (isAuth) {
     return (

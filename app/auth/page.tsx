@@ -1,9 +1,18 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function AuthPage() {
-  const { signInWithGoogle, loading } = useAuth()
+  const { signInWithGoogle, loading, user } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push("/dashboard")
+    }
+  }, [user, loading, router])
 
   return (
     <main className="relative min-h-screen bg-black overflow-hidden flex items-center justify-center px-6">
