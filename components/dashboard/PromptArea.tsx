@@ -183,14 +183,29 @@ const toolsList: Tool[] = [
 const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
   ({ className, ...props }, ref) => {
     const internalRef = React.useRef<HTMLTextAreaElement>(null)
+    const containerRef = React.useRef<HTMLDivElement>(null)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
     const [value, setValue] = React.useState("")
     const [imagePreview, setImagePreview] = React.useState<string | null>(null)
     const [selectedTool, setSelectedTool] = React.useState<string | null>(null)
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+    const [mousePos, setMousePos] = React.useState({ x: -300, y: -300 })
+    const [isHovered, setIsHovered] = React.useState(false)
 
     React.useImperativeHandle(ref, () => internalRef.current!, [])
+
+    const handleMouseMove = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+      if (containerRef.current) {
+        const { left, top } = containerRef.current.getBoundingClientRect()
+        setMousePos({ x: e.clientX - left, y: e.clientY - top })
+        setIsHovered(true)
+      }
+    }, [])
+
+    const handleMouseLeave = React.useCallback(() => {
+      setIsHovered(false)
+    }, [])
 
     React.useLayoutEffect(() => {
       const el = internalRef.current
@@ -227,14 +242,37 @@ const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
 
     return (
       <div
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         className={cn(
-          "flex flex-col rounded-[28px] p-2 transition-colors",
+          "relative flex flex-col rounded-[28px] p-2 transition-colors overflow-hidden",
           "bg-[#2a2a2a] border border-white/[0.07]",
           "shadow-[0_4px_40px_rgba(0,0,0,0.4)]",
           "focus-within:border-white/[0.12]",
           className
         )}
       >
+        {/* Magic border gradient */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[28px] transition-opacity duration-300"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            background: `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.35), transparent 70%)`,
+            WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            WebkitMaskComposite: "xor",
+            maskComposite: "exclude",
+            padding: "1px",
+          }}
+        />
+        {/* Magic spotlight gradient */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[28px] transition-opacity duration-300"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            background: `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.055), transparent 80%)`,
+          }}
+        />
         <input
           type="file"
           ref={fileInputRef}
